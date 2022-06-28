@@ -6,62 +6,75 @@ int main()
 {
     int i;
     int j;
+    int k = 0;
+    float prevPrice;
+    float currPrice;
     int increment;
-    int carry = 0;
+    float pull;
+    float carry = 0;
     int sign = 1;
     int high;
     int low;
     float average;
+    int middle;
+    int middleSwap;
 
     //CONTROLS
-    int start = 50;
-    int min = 20;
-    int max = 100;
-    int adjust = 5;
-    int size = 1000;
-    int mod = 10;
+    int start = 50;  //Starting Price
+    int min = 20;    //Price will be adjusted upwards when below min value
+    int max = 100;   //Price will be adjusted downwards when above max value
+    int adjust = 5;  //Value of price adjustment when min/max threshold is met
+    int size = 1000; //Length of price simulation
+    int mod = 7;     //Modulus for random number generator
 
-    int price[size];
-    price[0] = start;
     srand(time(0));
 
     while(1)
     {
+        prevPrice = middle = start;
+        middleSwap = size / 10;
         high = low = start;
+        average = 0;
         for(i=1; i<size; i++)
         {
+            k++;
+            if(k == middleSwap)
+            {
+                k = 0;
+                middle = (middle + ((rand() % (max - min)) + min)) / 2;
+            }
+            pull = (middle - prevPrice) / ((min + max) / mod);
             increment = ((rand() % mod) + 1) * sign;
-            price[i] = price[i-1] + increment + carry;
+            currPrice = prevPrice + increment + carry + pull;
             carry = increment;
             sign *= -1;
 
-            if(price[i] > max)
+            if(currPrice > max)
             {
-                price[i] -= adjust;
+                currPrice -= adjust;
             }
-            else if(price[i] < min)
+            else if(currPrice < min)
             {
-                price[i] += adjust;
+                currPrice += adjust;
             }
 
-            if(price[i] > high)
+            if(currPrice > high)
             {
-                high = price[i];
+                high = currPrice;
             }
-            else if(price[i] < low)
+            else if(currPrice < low)
             {
-                low = price[i];
+                low = currPrice;
             }
-        }
 
-        for(i=0; i<size; i++)
-        {
-            average += price[i];
-            for(j=0; j<price[i]; j++)
+            average += currPrice;
+            for(j=0; j<currPrice; j++)
             {
                 printf("_");
             }
             printf("\n");
+
+            prevPrice = currPrice;
         }
 
         average /= size;
@@ -73,6 +86,5 @@ int main()
         getchar();
         system("cls");
     }
-
     return 0;
 }
